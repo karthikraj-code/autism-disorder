@@ -56,6 +56,7 @@ const Stories = () => {
       <Hero
         title="Real Stories"
         subtitle="Read personal experiences from individuals on the autism spectrum, their families, and caregivers."
+        imageSrc="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop"
       />
 
       <section className="py-12 bg-white">

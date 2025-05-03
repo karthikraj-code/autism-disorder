@@ -13,6 +13,7 @@ const Index = () => {
         subtitle="Building awareness, fostering acceptance, and creating a supportive community for individuals on the autism spectrum and their families."
         ctaText="Learn More"
         ctaLink="/about"
+        imageSrc="https://images.unsplash.com/photo-1582562124811-c09040d0a901?auto=format&fit=crop"
       />
       
       <section className="py-12 bg-white">
@@ -48,7 +49,7 @@ const Index = () => {
               linkTo="/about"
               linkText="Read More"
               className="h-full"
-              imageSrc="https://source.unsplash.com/random/300x200/?puzzle"
+              imageSrc="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop"
             />
             <InfoCard
               title="Real Stories"
@@ -56,7 +57,7 @@ const Index = () => {
               linkTo="/stories"
               linkText="Read Stories"
               className="h-full"
-              imageSrc="https://source.unsplash.com/random/300x200/?community"
+              imageSrc="https://images.unsplash.com/photo-1517022812141-23620dba5c23?auto=format&fit=crop"
             />
             <InfoCard
               title="Support & Resources"
@@ -64,7 +65,7 @@ const Index = () => {
               linkTo="/resources"
               linkText="Find Support"
               className="h-full"
-              imageSrc="https://source.unsplash.com/random/300x200/?support"
+              imageSrc="https://images.unsplash.com/photo-1605810230434-7631ac76ec81?auto=format&fit=crop"
             />
             <InfoCard
               title="Activities & Tools"
@@ -72,7 +73,7 @@ const Index = () => {
               linkTo="/activities"
               linkText="Explore"
               className="h-full"
-              imageSrc="https://source.unsplash.com/random/300x200/?tools"
+              imageSrc="https://images.unsplash.com/photo-1581090464777-f3220bbe1b8b?auto=format&fit=crop"
             />
           </div>
         </div>
