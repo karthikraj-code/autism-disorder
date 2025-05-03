@@ -13,7 +13,7 @@ const Index = () => {
         subtitle="Building awareness, fostering acceptance, and creating a supportive community for individuals on the autism spectrum and their families."
         ctaText="Learn More"
         ctaLink="/about"
-        imageSrc="https://images.unsplash.com/photo-1582562124811-c09040d0a901?auto=format&fit=crop"
+        imageSrc="https://www.synlab-sd.com/wp-content/uploads/2024/08/SYNLAB_Blog-Autismo_IMG-INTERNA_INFOGRAFICO_ingles.jpg"
       />
       
       <section className="py-12 bg-white">
