@@ -36,7 +36,7 @@ const StorySubmissionForm = () => {
   const onSubmit = async (values: StoryFormValues) => {
     setIsSubmitting(true);
     try {
-      const { error } = await supabase.from("stories").insert([values]);
+      const { error } = await supabase.from("stories").insert(values);
       
       if (error) throw error;
       

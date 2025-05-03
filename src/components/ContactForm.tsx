@@ -35,15 +35,15 @@ const ContactForm = () => {
   const onSubmit = async (values: ContactFormValues) => {
     setIsSubmitting(true);
     try {
-      const { error } = await supabase.from("contact_submissions").insert([values]);
+      const { error } = await supabase.from("contact_submissions").insert(values);
       
       if (error) throw error;
       
-      toast.success("Your message has been received! We'll be in touch soon.");
+      toast.success("Thank you for your message! We'll get back to you soon.");
       form.reset();
     } catch (error) {
       console.error("Error submitting form:", error);
-      toast.error("There was a problem sending your message. Please try again.");
+      toast.error("There was a problem submitting your form. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -57,9 +57,9 @@ const ContactForm = () => {
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Name</FormLabel>
+              <FormLabel>Your Name</FormLabel>
               <FormControl>
-                <Input placeholder="Your name" {...field} />
+                <Input placeholder="Enter your name" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -71,9 +71,9 @@ const ContactForm = () => {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>Email Address</FormLabel>
               <FormControl>
-                <Input placeholder="Your email address" type="email" {...field} />
+                <Input placeholder="Enter your email" type="email" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -87,7 +87,7 @@ const ContactForm = () => {
             <FormItem>
               <FormLabel>Subject</FormLabel>
               <FormControl>
-                <Input placeholder="Message subject" {...field} />
+                <Input placeholder="What is this regarding?" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -99,10 +99,10 @@ const ContactForm = () => {
           name="message"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Message</FormLabel>
+              <FormLabel>Your Message</FormLabel>
               <FormControl>
                 <Textarea 
-                  placeholder="Your message" 
+                  placeholder="How can we help you?" 
                   className="min-h-32" 
                   {...field} 
                 />

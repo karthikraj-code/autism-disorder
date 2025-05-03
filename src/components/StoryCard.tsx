@@ -1,5 +1,6 @@
 
 import { Link } from "react-router-dom";
+import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
 
 interface StoryCardProps {
   id: string;
@@ -11,21 +12,25 @@ interface StoryCardProps {
 
 const StoryCard = ({ id, title, authorName, relationship, excerpt }: StoryCardProps) => {
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-indigo-400">
-      <h3 className="font-bold text-xl mb-2 text-indigo-700">{title}</h3>
-      <div className="mb-4">
-        <span className="text-sm text-gray-600 italic">
+    <Card className="h-full flex flex-col border-l-4 border-indigo-400 hover:shadow-lg transition-shadow">
+      <CardHeader className="pb-2">
+        <h3 className="font-bold text-xl text-indigo-700">{title}</h3>
+        <div className="text-sm text-gray-600 italic">
           By {authorName} • {relationship}
-        </span>
-      </div>
-      <p className="text-gray-700 mb-4 line-clamp-3">{excerpt}</p>
-      <Link
-        to={`/stories/${id}`}
-        className="inline-block text-indigo-600 hover:text-indigo-800 font-medium"
-      >
-        Read full story →
-      </Link>
-    </div>
+        </div>
+      </CardHeader>
+      <CardContent className="flex-grow">
+        <p className="text-gray-700 line-clamp-3">{excerpt}</p>
+      </CardContent>
+      <CardFooter>
+        <Link
+          to={`/stories/${id}`}
+          className="inline-block text-indigo-600 hover:text-indigo-800 font-medium"
+        >
+          Read full story →
+        </Link>
+      </CardFooter>
+    </Card>
   );
 };
 
