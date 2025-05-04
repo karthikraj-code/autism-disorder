@@ -36,7 +36,13 @@ const StorySubmissionForm = () => {
   const onSubmit = async (values: StoryFormValues) => {
     setIsSubmitting(true);
     try {
-      const { error } = await supabase.from("stories").insert(values);
+      // Ensure all required fields are passed with their non-optional values
+      const { error } = await supabase.from("stories").insert({
+        author_name: values.author_name,
+        title: values.title,
+        content: values.content,
+        relationship: values.relationship
+      });
       
       if (error) throw error;
       

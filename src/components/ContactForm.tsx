@@ -35,7 +35,13 @@ const ContactForm = () => {
   const onSubmit = async (values: ContactFormValues) => {
     setIsSubmitting(true);
     try {
-      const { error } = await supabase.from("contact_submissions").insert(values);
+      // Ensure all required fields are passed with their non-optional values
+      const { error } = await supabase.from("contact_submissions").insert({
+        name: values.name,
+        email: values.email,
+        subject: values.subject,
+        message: values.message
+      });
       
       if (error) throw error;
       
