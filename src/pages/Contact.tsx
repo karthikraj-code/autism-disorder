@@ -26,7 +26,7 @@ const Contact = () => {
                   <MapPin className="h-6 w-6 text-indigo-600 flex-shrink-0 mt-1" />
                   <div className="ml-4">
                     <h3 className="font-medium">Our Location</h3>
-                    <p className="text-gray-600">123 Spectrum Avenue, Anytown, ST 12345</p>
+                    <p className="text-gray-600">Andhra Pradesh, Vijayawada</p>
                   </div>
                 </div>
                 
@@ -34,7 +34,7 @@ const Contact = () => {
                   <Phone className="h-6 w-6 text-indigo-600 flex-shrink-0 mt-1" />
                   <div className="ml-4">
                     <h3 className="font-medium">Phone</h3>
-                    <p className="text-gray-600">(555) 123-4567</p>
+                    <p className="text-gray-600">91+ 6302559912</p>
                   </div>
                 </div>
                 
@@ -42,7 +42,7 @@ const Contact = () => {
                   <Mail className="h-6 w-6 text-indigo-600 flex-shrink-0 mt-1" />
                   <div className="ml-4">
                     <h3 className="font-medium">Email</h3>
-                    <p className="text-gray-600">contact@autismspectrumconnect.org</p>
+                    <p className="text-gray-600">aradhulakarthik@gmail.com</p>
                   </div>
                 </div>
                 
