@@ -47,7 +47,7 @@ const Footer = () => {
               </a>
             </div>
             <p className="text-gray-300">
-              Email: <a href="mailto:contact@autismspectrumconnect.org" className="hover:text-white">contact@autismspectrumconnect.org</a>
+              Email: <a href="mailto:aradhulakarthik@gmail.com" className="hover:text-white">aradhulakarthik@gmail.com</a>
             </p>
           </div>
         </div>
