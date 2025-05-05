@@ -2,12 +2,14 @@
 import { createContext, useState, useEffect, useContext, ReactNode } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 type AuthContextType = {
   session: Session | null;
   user: User | null;
   signOut: () => Promise<void>;
   loading: boolean;
+  refreshSession: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType>({
@@ -15,6 +17,7 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   signOut: async () => {},
   loading: true,
+  refreshSession: async () => {},
 });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -29,6 +32,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setSession(newSession);
         setUser(newSession?.user ?? null);
         setLoading(false);
+        
+        // Show toast notifications for auth events
+        switch (event) {
+          case 'SIGNED_IN':
+            toast.success("Signed in successfully!");
+            break;
+          case 'SIGNED_OUT':
+            toast.info("Signed out successfully");
+            break;
+          case 'USER_UPDATED':
+            toast.success("User profile updated");
+            break;
+          case 'PASSWORD_RECOVERY':
+            toast.info("Password recovery email sent");
+            break;
+        }
       }
     );
 
@@ -45,11 +64,34 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    try {
+      await supabase.auth.signOut();
+    } catch (error) {
+      toast.error("Error signing out");
+      console.error("Sign out error:", error);
+    }
+  };
+  
+  const refreshSession = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase.auth.refreshSession();
+      if (error) {
+        throw error;
+      }
+      
+      setSession(data.session);
+      setUser(data.session?.user ?? null);
+    } catch (error) {
+      console.error("Session refresh error:", error);
+      toast.error("Failed to refresh session");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ session, user, signOut, loading }}>
+    <AuthContext.Provider value={{ session, user, signOut, loading, refreshSession }}>
       {children}
     </AuthContext.Provider>
   );

@@ -3,19 +3,43 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { 
+  Popover, 
+  PopoverContent, 
+  PopoverTrigger
+} from "@/components/ui/popover";
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuLabel, 
+  DropdownMenuSeparator, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
+import { LogOut, User, Settings, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 const UserButton = () => {
   const { user, signOut, loading } = useAuth();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
-    await signOut();
-    navigate("/");
+    try {
+      await signOut();
+      navigate("/");
+      toast.success("You have been signed out");
+    } catch (error) {
+      toast.error("Error signing out");
+    }
   };
 
   if (loading) {
-    return <Button variant="ghost" size="sm" disabled>Loading...</Button>;
+    return (
+      <Button variant="ghost" size="sm" className="h-9 w-9 rounded-full p-0" disabled>
+        <Loader2 className="h-5 w-5 animate-spin" />
+        <span className="sr-only">Loading</span>
+      </Button>
+    );
   }
 
   if (!user) {
@@ -24,38 +48,47 @@ const UserButton = () => {
         onClick={() => navigate("/auth")}
         variant="outline" 
         size="sm"
+        className="flex items-center gap-2"
       >
-        Sign In
+        <User size={16} />
+        <span>Sign In</span>
       </Button>
     );
   }
 
   return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-          <Avatar className="h-8 w-8">
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="relative h-9 w-9 rounded-full p-0" aria-label="User menu">
+          <Avatar className="h-9 w-9">
             <AvatarImage src={user.user_metadata?.avatar_url} alt="User avatar" />
             <AvatarFallback>{getUserInitials(user)}</AvatarFallback>
           </Avatar>
         </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-56" align="end" forceMount>
-        <div className="space-y-1">
-          <p className="text-sm font-medium leading-none">{getUserDisplayName(user)}</p>
-          <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
-        </div>
-        <div className="mt-5 pt-5 border-t">
-          <Button 
-            variant="outline" 
-            className="w-full justify-start" 
-            onClick={handleSignOut}
-          >
-            Sign Out
-          </Button>
-        </div>
-      </PopoverContent>
-    </Popover>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-56" align="end" forceMount>
+        <DropdownMenuLabel className="font-normal">
+          <div className="flex flex-col space-y-1">
+            <p className="text-sm font-medium leading-none">{getUserDisplayName(user)}</p>
+            <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
+          </div>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => navigate("/profile")}>
+          <User className="mr-2 h-4 w-4" />
+          <span>Profile</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => navigate("/settings")}>
+          <Settings className="mr-2 h-4 w-4" />
+          <span>Settings</span>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={handleSignOut}>
+          <LogOut className="mr-2 h-4 w-4" />
+          <span>Sign out</span>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
 

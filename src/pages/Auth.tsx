@@ -3,14 +3,23 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
+import { AlertCircle } from "lucide-react";
 import { User } from "@supabase/supabase-js";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
+  const [activeTab, setActiveTab] = useState("signin");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -37,8 +46,44 @@ const Auth = () => {
     };
   }, [navigate]);
 
+  const validateForm = () => {
+    setError(null);
+    
+    if (!email) {
+      setError("Email is required");
+      return false;
+    }
+    
+    if (!email.includes('@') || !email.includes('.')) {
+      setError("Please enter a valid email address");
+      return false;
+    }
+    
+    if (!password) {
+      setError("Password is required");
+      return false;
+    }
+    
+    if (activeTab === "signup" && password.length < 6) {
+      setError("Password must be at least 6 characters");
+      return false;
+    }
+    
+    if (activeTab === "signup" && password !== confirmPassword) {
+      setError("Passwords do not match");
+      return false;
+    }
+    
+    return true;
+  };
+
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+    
     setLoading(true);
     
     const { error } = await supabase.auth.signUp({
@@ -47,6 +92,7 @@ const Auth = () => {
     });
 
     if (error) {
+      setError(error.message);
       toast.error(error.message);
     } else {
       toast.success("Sign up successful! Please check your email for verification.");
@@ -56,6 +102,11 @@ const Auth = () => {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+    
     setLoading(true);
     
     const { error } = await supabase.auth.signInWithPassword({
@@ -64,6 +115,7 @@ const Auth = () => {
     });
 
     if (error) {
+      setError(error.message);
       toast.error(error.message);
     } else {
       toast.success("Sign in successful!");
@@ -74,6 +126,8 @@ const Auth = () => {
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
+    setError(null);
+    
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
@@ -82,9 +136,32 @@ const Auth = () => {
     });
     
     if (error) {
+      setError(error.message);
       toast.error(error.message);
       setLoading(false);
     }
+  };
+
+  const handleForgotPassword = async () => {
+    if (!email) {
+      setError("Please enter your email address");
+      return;
+    }
+    
+    setLoading(true);
+    
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    
+    if (error) {
+      setError(error.message);
+      toast.error(error.message);
+    } else {
+      toast.success("Password reset email sent. Please check your inbox.");
+    }
+    
+    setLoading(false);
   };
 
   // If user is already logged in, redirect to home
@@ -93,10 +170,10 @@ const Auth = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <h2 className="text-center text-3xl font-extrabold text-gray-900">
-          Welcome to Autism Support
+          Welcome to Autism Spectrum Connect
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
           Sign in or create an account to share stories and connect with others
@@ -104,66 +181,115 @@ const Auth = () => {
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-          <form className="space-y-6" onSubmit={handleSignIn}>
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email address
-              </label>
-              <div className="mt-1">
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                  placeholder="Enter your email"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password
-              </label>
-              <div className="mt-1">
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="current-password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                  placeholder="Enter your password"
-                />
-              </div>
-            </div>
-
-            <div className="flex flex-col space-y-4">
-              <Button 
-                type="submit" 
-                disabled={loading} 
-                className="w-full flex justify-center py-2"
-              >
-                {loading ? "Processing..." : "Sign In"}
-              </Button>
+        <Card>
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl text-center">Authentication</CardTitle>
+            <CardDescription className="text-center">
+              Choose how you want to access your account
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Tabs defaultValue="signin" value={activeTab} onValueChange={setActiveTab}>
+              <TabsList className="grid w-full grid-cols-2 mb-6">
+                <TabsTrigger value="signin">Sign In</TabsTrigger>
+                <TabsTrigger value="signup">Create Account</TabsTrigger>
+              </TabsList>
               
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={handleSignUp}
-                disabled={loading} 
-                className="w-full flex justify-center py-2"
-              >
-                Create Account
-              </Button>
-
-              <div className="relative">
+              {error && (
+                <Alert variant="destructive" className="mb-6">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+              
+              <TabsContent value="signin">
+                <form onSubmit={handleSignIn} className="space-y-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="you@example.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                    />
+                  </div>
+                  
+                  <div className="grid gap-2">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="password">Password</Label>
+                      <Button 
+                        variant="link" 
+                        className="px-0 font-normal text-xs text-primary h-auto" 
+                        type="button"
+                        onClick={handleForgotPassword}
+                        disabled={loading}
+                      >
+                        Forgot password?
+                      </Button>
+                    </div>
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                    />
+                  </div>
+                  
+                  <Button type="submit" className="w-full" disabled={loading}>
+                    {loading ? "Processing..." : "Sign In"}
+                  </Button>
+                </form>
+              </TabsContent>
+              
+              <TabsContent value="signup">
+                <form onSubmit={handleSignUp} className="space-y-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="signup-email">Email</Label>
+                    <Input
+                      id="signup-email"
+                      type="email"
+                      placeholder="you@example.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                    />
+                  </div>
+                  
+                  <div className="grid gap-2">
+                    <Label htmlFor="signup-password">Password</Label>
+                    <Input
+                      id="signup-password"
+                      type="password"
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                    />
+                  </div>
+                  
+                  <div className="grid gap-2">
+                    <Label htmlFor="confirm-password">Confirm Password</Label>
+                    <Input
+                      id="confirm-password"
+                      type="password"
+                      placeholder="••••••••"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      required
+                    />
+                  </div>
+                  
+                  <Button type="submit" className="w-full" disabled={loading}>
+                    {loading ? "Processing..." : "Create Account"}
+                  </Button>
+                </form>
+              </TabsContent>
+              
+              <div className="relative my-4">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-gray-300"></div>
                 </div>
@@ -171,13 +297,13 @@ const Auth = () => {
                   <span className="px-2 bg-white text-gray-500">Or continue with</span>
                 </div>
               </div>
-
+              
               <Button 
                 type="button"
                 variant="outline"
                 onClick={handleGoogleSignIn}
                 disabled={loading}
-                className="w-full flex justify-center items-center py-2 space-x-2"
+                className="w-full flex items-center justify-center gap-2"
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
                   <path
@@ -199,9 +325,14 @@ const Auth = () => {
                 </svg>
                 <span>Sign in with Google</span>
               </Button>
-            </div>
-          </form>
-        </div>
+            </Tabs>
+          </CardContent>
+          <CardFooter className="justify-center">
+            <p className="text-xs text-center text-gray-500">
+              By signing in or creating an account, you agree to our <a href="/terms" className="underline">Terms of Service</a> and <a href="/privacy" className="underline">Privacy Policy</a>
+            </p>
+          </CardFooter>
+        </Card>
       </div>
     </div>
   );
