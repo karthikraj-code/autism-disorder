@@ -49,7 +49,7 @@ const Index = () => {
               linkTo="/about"
               linkText="Read More"
               className="h-full"
-              imageSrc="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop"
+              imageSrc="https://www.safetynet-health.com/wp-content/uploads/2020/12/Autism-SafetyNet-2-scaled.jpg"
             />
             <InfoCard
               title="Real Stories"
@@ -57,7 +57,7 @@ const Index = () => {
               linkTo="/stories"
               linkText="Read Stories"
               className="h-full"
-              imageSrc="https://images.unsplash.com/photo-1517022812141-23620dba5c23?auto=format&fit=crop"
+              imageSrc="https://images.news18.com/ibnlive/uploads/2025/04/Image-2025-04-4495b2d456e30c3e2da09bd277b96765-16x9.png?impolicy=website&width=640&height=360"
             />
             <InfoCard
               title="Support & Resources"
@@ -65,7 +65,7 @@ const Index = () => {
               linkTo="/resources"
               linkText="Find Support"
               className="h-full"
-              imageSrc="https://images.unsplash.com/photo-1605810230434-7631ac76ec81?auto=format&fit=crop"
+              imageSrc="https://phoenixbhc.com/wp-content/uploads/2019/02/autism-resources-e1584728160240.jpg"
             />
             <InfoCard
               title="Activities & Tools"
@@ -73,7 +73,7 @@ const Index = () => {
               linkTo="/activities"
               linkText="Explore"
               className="h-full"
-              imageSrc="https://images.unsplash.com/photo-1581090464777-f3220bbe1b8b?auto=format&fit=crop"
+              imageSrc="https://autismcoe.com/wp-content/uploads/2024/11/How-to-Support-Self-Regulation-in-Children-with-Autism.png"
             />
           </div>
         </div>

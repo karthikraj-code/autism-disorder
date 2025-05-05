@@ -107,7 +107,7 @@ const Stories = () => {
       <Hero
         title="Real Stories"
         subtitle="Read personal experiences from individuals on the autism spectrum, their families, and caregivers."
-        imageSrc="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop"
+        imageSrc="https://cdn-backh.nitrocdn.com/dCALSdIiVdoMTPjGUvaWbestYlcjPtwz/assets/images/optimized/rev-04cbad2/www.autismparentingmagazine.com/wp-content/uploads/2023/10/Social-Stories-for-Autistic-Children-2.jpg"
       />
 
       <section className="py-12 bg-white">

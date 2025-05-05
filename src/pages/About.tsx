@@ -9,7 +9,7 @@ const About = () => {
       <Hero
         title="Understanding Autism"
         subtitle="Learn about autism spectrum disorder, its characteristics, and how it affects individuals differently."
-        imageSrc="https://images.unsplash.com/photo-1649972904349-6e44c42644a7?auto=format&fit=crop"
+        imageSrc="https://srinivasaiims.com/wp-content/uploads/2024/06/Autism-Spectrum.png"
       />
       
       <section className="py-12 bg-white">
