@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,13 +20,17 @@ const Auth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [activeTab, setActiveTab] = useState("signin");
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Get the redirect path from location state or default to '/'
+  const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/';
 
   useEffect(() => {
     const { data: authListener } = supabase.auth.onAuthStateChange(
       (event, session) => {
         if (session?.user) {
           setUser(session.user);
-          navigate("/");
+          navigate(from, { replace: true });
         } else {
           setUser(null);
         }
@@ -36,14 +40,14 @@ const Auth = () => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         setUser(session.user);
-        navigate("/");
+        navigate(from, { replace: true });
       }
     });
 
     return () => {
       authListener.subscription.unsubscribe();
     };
-  }, [navigate]);
+  }, [navigate, from]);
 
   const validateForm = () => {
     setError(null);
@@ -118,7 +122,7 @@ const Auth = () => {
       toast.error(error.message);
     } else {
       toast.success("Sign in successful!");
-      navigate("/");
+      navigate(from, { replace: true });
     }
     setLoading(false);
   };
@@ -178,7 +182,7 @@ const Auth = () => {
           Welcome to Autism Spectrum Connect
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
-          Sign in or create an account to share stories and connect with others
+          Please sign in to access the website
         </p>
       </div>
 

@@ -3,8 +3,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "./contexts/AuthContext";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider, ProtectedRoute } from "./contexts/AuthContext";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Index from "./pages/Index";
@@ -31,17 +31,53 @@ const App = () => (
             <Header />
             <main className="flex-grow">
               <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/stories" element={<Stories />} />
-                <Route path="/stories/:id" element={<StoryDetail />} />
-                <Route path="/stories/submit" element={<SubmitStory />} />
-                <Route path="/resources" element={<Resources />} />
-                <Route path="/activities" element={<Activities />} />
-                <Route path="/contact" element={<Contact />} />
+                {/* Public route */}
                 <Route path="/auth" element={<Auth />} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<NotFound />} />
+                
+                {/* Protected routes */}
+                <Route path="/" element={
+                  <ProtectedRoute>
+                    <Index />
+                  </ProtectedRoute>
+                } />
+                <Route path="/about" element={
+                  <ProtectedRoute>
+                    <About />
+                  </ProtectedRoute>
+                } />
+                <Route path="/stories" element={
+                  <ProtectedRoute>
+                    <Stories />
+                  </ProtectedRoute>
+                } />
+                <Route path="/stories/:id" element={
+                  <ProtectedRoute>
+                    <StoryDetail />
+                  </ProtectedRoute>
+                } />
+                <Route path="/stories/submit" element={
+                  <ProtectedRoute>
+                    <SubmitStory />
+                  </ProtectedRoute>
+                } />
+                <Route path="/resources" element={
+                  <ProtectedRoute>
+                    <Resources />
+                  </ProtectedRoute>
+                } />
+                <Route path="/activities" element={
+                  <ProtectedRoute>
+                    <Activities />
+                  </ProtectedRoute>
+                } />
+                <Route path="/contact" element={
+                  <ProtectedRoute>
+                    <Contact />
+                  </ProtectedRoute>
+                } />
+                
+                {/* Redirect catch-all route to auth page */}
+                <Route path="*" element={<Navigate to="/auth" replace />} />
               </Routes>
             </main>
             <Footer />
