@@ -26,6 +26,26 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Check the URL for OAuth response handling
+    const handleOAuthResponse = async () => {
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const hasAuthParams = 
+        hashParams.get('access_token') || 
+        hashParams.get('error_description');
+      
+      if (hasAuthParams) {
+        const { data, error } = await supabase.auth.getSession();
+        if (error) {
+          console.error("Error processing OAuth response", error);
+        } else if (data.session) {
+          console.log("OAuth session retrieved successfully");
+        }
+      }
+    };
+    
+    // Process any OAuth responses in the URL
+    handleOAuthResponse();
+    
     // Set up the auth state listener first
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, newSession) => {
