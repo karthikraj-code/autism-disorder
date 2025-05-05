@@ -1,13 +1,7 @@
-
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { 
-  Popover, 
-  PopoverContent, 
-  PopoverTrigger
-} from "@/components/ui/popover";
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -43,16 +37,15 @@ const UserButton = () => {
   }
 
   if (!user) {
+    // Don't use the Button component since it might have styles affecting the text visibility
     return (
-      <Button 
+      <div 
         onClick={() => navigate("/auth")}
-        variant="outline" 
-        size="sm"
-        className="flex items-center gap-2"
+        className="border border-gray-300 rounded-md py-2 px-4 flex items-center gap-2 cursor-pointer bg-white text-black hover:bg-gray-100"
       >
         <User size={16} />
-        <span>Sign In</span>
-      </Button>
+        <p className="m-0 font-semibold">Sign In</p>
+      </div>
     );
   }
 
