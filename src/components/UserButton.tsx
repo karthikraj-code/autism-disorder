@@ -1,3 +1,4 @@
+
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -37,14 +38,14 @@ const UserButton = () => {
   }
 
   if (!user) {
-    // Don't use the Button component since it might have styles affecting the text visibility
+    // Use Button component with better text contrast
     return (
       <div 
         onClick={() => navigate("/auth")}
-        className="border border-gray-300 rounded-md py-2 px-4 flex items-center gap-2 cursor-pointer bg-white text-black hover:bg-gray-100"
+        className="border border-gray-300 rounded-md py-2 px-4 flex items-center gap-2 cursor-pointer bg-white text-gray-800 hover:bg-gray-100"
       >
-        <User size={16} />
-        <p className="m-0 font-semibold">Sign In</p>
+        <User size={16} className="text-gray-800" />
+        <p className="m-0 font-semibold text-gray-800">Sign In</p>
       </div>
     );
   }
@@ -55,7 +56,7 @@ const UserButton = () => {
         <Button variant="ghost" className="relative h-9 w-9 rounded-full p-0" aria-label="User menu">
           <Avatar className="h-9 w-9">
             <AvatarImage src={user.user_metadata?.avatar_url} alt="User avatar" />
-            <AvatarFallback>{getUserInitials(user)}</AvatarFallback>
+            <AvatarFallback className="bg-muted text-muted-foreground">{getUserInitials(user)}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
