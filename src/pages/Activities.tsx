@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { useState, useRef, useEffect } from "react";
 import { Toggle } from "@/components/ui/toggle";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Progress } from "@/components/ui/progress";
+import { useToast } from "@/hooks/use-toast";
 
 const Activities = () => {
   // State for audio player
@@ -19,6 +19,7 @@ const Activities = () => {
   const [duration, setDuration] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const progressIntervalRef = useRef<number | null>(null);
+  const { toast } = useToast();
 
   // Audio tracks
   const tracks = [
@@ -45,31 +46,102 @@ const Activities = () => {
     }
   ];
 
+  // Initialize audio element
+  useEffect(() => {
+    // Create audio element if it doesn't exist
+    if (!audioRef.current) {
+      audioRef.current = new Audio();
+      audioRef.current.volume = volume / 100;
+      
+      // Add event listeners
+      audioRef.current.addEventListener('ended', handleEnded);
+      audioRef.current.addEventListener('loadedmetadata', () => {
+        if (audioRef.current) {
+          setDuration(audioRef.current.duration);
+        }
+      });
+      audioRef.current.addEventListener('error', (e) => {
+        console.error("Audio error:", e);
+        toast({
+          title: "Audio Error",
+          description: "There was an error playing this track. Please try again.",
+          variant: "destructive",
+        });
+        setIsPlaying(false);
+      });
+    }
+    
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.removeEventListener('ended', handleEnded);
+        audioRef.current = null;
+      }
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+      }
+    };
+  }, []);
+
   // Handle play/pause toggle
   const togglePlay = (trackId: number) => {
     if (currentTrack === trackId && isPlaying) {
       audioRef.current?.pause();
       setIsPlaying(false);
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+        progressIntervalRef.current = null;
+      }
     } else {
       if (audioRef.current) {
         audioRef.current.pause();
+        
         if (currentTrack !== trackId) {
           setCurrentTrack(trackId);
           const track = tracks.find(t => t.id === trackId);
           if (track) {
             audioRef.current.src = track.src;
             audioRef.current.volume = volume / 100;
+            setProgress(0);
           }
         }
-        audioRef.current.play()
-          .then(() => {
-            setIsPlaying(true);
-          })
-          .catch(error => {
-            console.error("Error playing audio:", error);
-          });
+        
+        const playPromise = audioRef.current.play();
+        
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => {
+              setIsPlaying(true);
+              toast({
+                title: "Now Playing",
+                description: `${tracks.find(t => t.id === trackId)?.title}`,
+              });
+            })
+            .catch(error => {
+              console.error("Error playing audio:", error);
+              toast({
+                title: "Playback Error",
+                description: "There was an error playing this track. Please try again.",
+                variant: "destructive",
+              });
+            });
+        }
       }
     }
+  };
+
+  // Handle track end
+  const handleEnded = () => {
+    setIsPlaying(false);
+    setProgress(0);
+    if (progressIntervalRef.current) {
+      clearInterval(progressIntervalRef.current);
+      progressIntervalRef.current = null;
+    }
+    toast({
+      title: "Track Ended",
+      description: `${tracks.find(t => t.id === currentTrack)?.title} has ended.`,
+    });
   };
 
   // Update volume
@@ -84,41 +156,29 @@ const Activities = () => {
   // Update progress bar
   useEffect(() => {
     if (isPlaying) {
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+      }
+      
       progressIntervalRef.current = window.setInterval(() => {
         if (audioRef.current) {
           const currentProgress = (audioRef.current.currentTime / audioRef.current.duration) * 100;
-          setProgress(currentProgress);
+          setProgress(isNaN(currentProgress) ? 0 : currentProgress);
           setDuration(audioRef.current.duration);
         }
       }, 100);
     } else if (progressIntervalRef.current) {
       clearInterval(progressIntervalRef.current);
+      progressIntervalRef.current = null;
     }
 
     return () => {
       if (progressIntervalRef.current) {
         clearInterval(progressIntervalRef.current);
+        progressIntervalRef.current = null;
       }
     };
   }, [isPlaying]);
-
-  // Handle track end
-  useEffect(() => {
-    const handleEnded = () => {
-      setIsPlaying(false);
-      setProgress(0);
-    };
-    
-    if (audioRef.current) {
-      audioRef.current.addEventListener('ended', handleEnded);
-    }
-    
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.removeEventListener('ended', handleEnded);
-      }
-    };
-  }, []);
 
   return (
     <div>
@@ -184,8 +244,6 @@ const Activities = () => {
                   </div>
                 ))}
               </div>
-
-              <audio ref={audioRef} className="hidden" />
 
               <div className="mt-6 pt-4 border-t border-gray-100">
                 <p className="text-sm text-gray-600">
