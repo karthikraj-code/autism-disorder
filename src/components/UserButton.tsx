@@ -18,6 +18,23 @@ const UserButton = () => {
   const { user, signOut, loading } = useAuth();
   const navigate = useNavigate();
 
+  // Get a consistent color for each user based on their email or ID
+  const getUserColor = (user: any): string => {
+    if (!user) return "#9b87f5"; // Default purple if no user
+    
+    // Use the user's email or ID to generate a consistent color
+    const str = user.email || user.id || "";
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    
+    // Choose from a set of vibrant, accessible colors
+    const colors = ["#9b87f5", "#8B5CF6", "#0EA5E9", "#F97316", "#10B981"];
+    const index = Math.abs(hash) % colors.length;
+    return colors[index];
+  };
+
   const handleSignOut = async () => {
     try {
       await signOut();
@@ -56,7 +73,12 @@ const UserButton = () => {
         <Button variant="ghost" className="relative h-9 w-9 rounded-full p-0" aria-label="User menu">
           <Avatar className="h-9 w-9">
             <AvatarImage src={user.user_metadata?.avatar_url} alt="User avatar" />
-            <AvatarFallback className="bg-muted text-muted-foreground">{getUserInitials(user)}</AvatarFallback>
+            <AvatarFallback 
+              style={{ backgroundColor: getUserColor(user) }} 
+              className="text-white"
+            >
+              {getUserInitials(user)}
+            </AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
