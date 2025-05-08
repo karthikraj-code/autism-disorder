@@ -2,10 +2,124 @@
 import Hero from "@/components/Hero";
 import InfoCard from "@/components/InfoCard";
 import { Separator } from "@/components/ui/separator";
-import { Download } from "lucide-react";
+import { Download, Volume2, Play, Pause } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
+import { useState, useRef, useEffect } from "react";
+import { Toggle } from "@/components/ui/toggle";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Progress } from "@/components/ui/progress";
 
 const Activities = () => {
+  // State for audio player
+  const [currentTrack, setCurrentTrack] = useState<number | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [volume, setVolume] = useState(70);
+  const [progress, setProgress] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const progressIntervalRef = useRef<number | null>(null);
+
+  // Audio tracks
+  const tracks = [
+    { 
+      id: 1, 
+      title: "Gentle Rain", 
+      description: "Calming rain sounds for relaxation and focus",
+      src: "https://soundbible.com/mp3/rain_thunder-mike-koenig.mp3",
+      duration: "1:22"
+    },
+    { 
+      id: 2, 
+      title: "Ocean Waves", 
+      description: "Peaceful ocean sounds to reduce anxiety",
+      src: "https://soundbible.com/mp3/Ocean_Waves-Mike_Koenig-980635567.mp3",
+      duration: "0:14"
+    },
+    { 
+      id: 3, 
+      title: "White Noise", 
+      description: "Consistent white noise for sensory regulation",
+      src: "https://soundbible.com/mp3/White-Noise-SoundBible.com-1665936212.mp3",
+      duration: "0:05"
+    }
+  ];
+
+  // Handle play/pause toggle
+  const togglePlay = (trackId: number) => {
+    if (currentTrack === trackId && isPlaying) {
+      audioRef.current?.pause();
+      setIsPlaying(false);
+    } else {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        if (currentTrack !== trackId) {
+          setCurrentTrack(trackId);
+          const track = tracks.find(t => t.id === trackId);
+          if (track) {
+            audioRef.current.src = track.src;
+            audioRef.current.volume = volume / 100;
+          }
+        }
+        audioRef.current.play()
+          .then(() => {
+            setIsPlaying(true);
+          })
+          .catch(error => {
+            console.error("Error playing audio:", error);
+          });
+      }
+    }
+  };
+
+  // Update volume
+  const handleVolumeChange = (value: number[]) => {
+    const newVolume = value[0];
+    setVolume(newVolume);
+    if (audioRef.current) {
+      audioRef.current.volume = newVolume / 100;
+    }
+  };
+
+  // Update progress bar
+  useEffect(() => {
+    if (isPlaying) {
+      progressIntervalRef.current = window.setInterval(() => {
+        if (audioRef.current) {
+          const currentProgress = (audioRef.current.currentTime / audioRef.current.duration) * 100;
+          setProgress(currentProgress);
+          setDuration(audioRef.current.duration);
+        }
+      }, 100);
+    } else if (progressIntervalRef.current) {
+      clearInterval(progressIntervalRef.current);
+    }
+
+    return () => {
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+      }
+    };
+  }, [isPlaying]);
+
+  // Handle track end
+  useEffect(() => {
+    const handleEnded = () => {
+      setIsPlaying(false);
+      setProgress(0);
+    };
+    
+    if (audioRef.current) {
+      audioRef.current.addEventListener('ended', handleEnded);
+    }
+    
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.removeEventListener('ended', handleEnded);
+      }
+    };
+  }, []);
+
   return (
     <div>
       <Hero
@@ -15,6 +129,74 @@ const Activities = () => {
       
       <section className="py-12 bg-white">
         <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold text-center text-indigo-800 mb-8">
+            Calming Music
+          </h2>
+          
+          <div className="max-w-3xl mx-auto mb-12 bg-white rounded-lg shadow-md overflow-hidden">
+            <div className="p-6">
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="text-xl font-semibold text-indigo-700">Audio Player</h3>
+                <div className="flex items-center">
+                  <Volume2 size={18} className="text-gray-600 mr-2" />
+                  <Slider
+                    className="w-28"
+                    value={[volume]}
+                    onValueChange={handleVolumeChange}
+                    max={100}
+                    step={1}
+                  />
+                </div>
+              </div>
+              
+              {isPlaying && (
+                <div className="mb-4">
+                  <Progress value={progress} className="h-2" />
+                  <div className="flex justify-between mt-1 text-xs text-gray-500">
+                    <span>{formatTime(audioRef.current?.currentTime || 0)}</span>
+                    <span>{formatTime(duration)}</span>
+                  </div>
+                </div>
+              )}
+
+              <div className="space-y-4 mt-6">
+                {tracks.map((track) => (
+                  <div key={track.id} className="flex items-center p-3 hover:bg-gray-50 rounded-lg transition-colors">
+                    <Toggle
+                      pressed={currentTrack === track.id && isPlaying}
+                      onPressedChange={() => togglePlay(track.id)}
+                      className="h-10 w-10 rounded-full flex items-center justify-center mr-4 bg-indigo-100 hover:bg-indigo-200"
+                      aria-label={isPlaying && currentTrack === track.id ? "Pause" : "Play"}
+                    >
+                      {isPlaying && currentTrack === track.id ? (
+                        <Pause size={18} className="text-indigo-700" />
+                      ) : (
+                        <Play size={18} className="text-indigo-700" />
+                      )}
+                    </Toggle>
+                    <div>
+                      <h4 className="font-medium text-gray-800">{track.title}</h4>
+                      <p className="text-sm text-gray-600">{track.description}</p>
+                    </div>
+                    <div className="ml-auto text-sm text-gray-500">
+                      {track.duration}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <audio ref={audioRef} className="hidden" />
+
+              <div className="mt-6 pt-4 border-t border-gray-100">
+                <p className="text-sm text-gray-600">
+                  Listening to calming sounds can help reduce anxiety, improve focus, and provide sensory regulation for individuals on the autism spectrum.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <Separator className="my-12" />
+          
           <h2 className="text-3xl font-bold text-center text-indigo-800 mb-8">
             Sensory Activities
           </h2>
@@ -250,6 +432,16 @@ const Activities = () => {
       </section>
     </div>
   );
+};
+
+// Helper function to format time in MM:SS
+const formatTime = (seconds: number): string => {
+  if (isNaN(seconds)) return "0:00";
+  
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = Math.floor(seconds % 60);
+  
+  return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
 };
 
 export default Activities;
