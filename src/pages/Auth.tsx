@@ -1,6 +1,7 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, cleanupAuthState } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,8 +27,32 @@ const Auth = () => {
   const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/';
 
   useEffect(() => {
+    // Check URL for auth response 
+    const checkUrlForSession = async () => {
+      // This handles OAuth redirect and hash fragment responses
+      const hasAuthParams = window.location.hash && 
+                          (window.location.hash.includes('access_token') || 
+                           window.location.hash.includes('error'));
+      
+      if (hasAuthParams) {
+        const { data, error } = await supabase.auth.getSession();
+        if (error) {
+          console.error('Error recovering session:', error.message);
+          toast.error('Authentication error: ' + error.message);
+        } else if (data.session) {
+          // Successfully logged in after OAuth redirect
+          setUser(data.session.user);
+          toast.success('Successfully logged in!');
+          navigate(from, { replace: true });
+        }
+      }
+    };
+    
+    checkUrlForSession();
+
     const { data: authListener } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        console.log('Auth state changed:', event);
         if (session?.user) {
           setUser(session.user);
           navigate(from, { replace: true });
@@ -88,10 +113,26 @@ const Auth = () => {
     }
     
     setLoading(true);
+    setError(null);
     
-    const { error } = await supabase.auth.signUp({
+    // Clean up any potential stale auth state
+    cleanupAuthState();
+    
+    try {
+      // Try a global sign out first to clear any stale sessions
+      await supabase.auth.signOut({ scope: 'global' });
+    } catch (err) {
+      // Continue even if this fails
+      console.log('Global sign out failed, continuing with sign up');
+    }
+    
+    const { error, data } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        // Ensure redirect works on deployed site
+        emailRedirectTo: `${window.location.origin}/auth`,
+      }
     });
 
     if (error) {
@@ -111,6 +152,18 @@ const Auth = () => {
     }
     
     setLoading(true);
+    setError(null);
+    
+    // Clean up any potential stale auth state
+    cleanupAuthState();
+    
+    try {
+      // Try a global sign out first to clear any stale sessions
+      await supabase.auth.signOut({ scope: 'global' });
+    } catch (err) {
+      // Continue even if this fails
+      console.log('Global sign out failed, continuing with sign in');
+    }
     
     const { error } = await supabase.auth.signInWithPassword({
       email,

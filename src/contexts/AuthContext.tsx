@@ -1,7 +1,7 @@
 
 import React, { createContext, useState, useEffect, useContext, ReactNode } from "react";
 import { Session, User } from "@supabase/supabase-js";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, cleanupAuthState } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Navigate, useLocation } from "react-router-dom";
 
@@ -50,6 +50,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     // Set up the auth state listener first
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, newSession) => {
+        console.log('Auth state change event:', event);
         setSession(newSession);
         setUser(newSession?.user ?? null);
         setLoading(false);
@@ -86,7 +87,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const signOut = async () => {
     try {
-      await supabase.auth.signOut();
+      // Clean up auth state first
+      cleanupAuthState();
+      // Then sign out
+      await supabase.auth.signOut({ scope: 'global' });
+      // Force page reload for a clean state
+      window.location.href = '/auth';
     } catch (error) {
       toast.error("Error signing out");
       console.error("Sign out error:", error);
