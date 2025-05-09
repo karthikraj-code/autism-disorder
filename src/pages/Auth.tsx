@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase, cleanupAuthState } from "@/integrations/supabase/client";
@@ -25,6 +24,17 @@ const Auth = () => {
 
   // Get the redirect path from location state or default to '/'
   const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/';
+
+  // Function to get site URL based on environment
+  const getSiteUrl = () => {
+    // Check if we're on Netlify production domain
+    if (window.location.hostname === 'autism-disorder-spectrum.netlify.app') {
+      return 'https://autism-disorder-spectrum.netlify.app/auth';
+    }
+    
+    // Fallback for local development
+    return `${window.location.origin}/auth`;
+  };
 
   useEffect(() => {
     // Check URL for auth response 
@@ -130,8 +140,8 @@ const Auth = () => {
       email,
       password,
       options: {
-        // Ensure redirect works on deployed site
-        emailRedirectTo: `${window.location.origin}/auth`,
+        // Use the proper site URL for redirects
+        emailRedirectTo: getSiteUrl(),
       }
     });
 
@@ -187,7 +197,7 @@ const Auth = () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth`,
+        redirectTo: getSiteUrl(),
         queryParams: {
           prompt: 'select_account', // Forces the account selection screen
         }
@@ -210,7 +220,7 @@ const Auth = () => {
     setLoading(true);
     
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
+      redirectTo: getSiteUrl().replace('/auth', '/reset-password'),
     });
     
     if (error) {

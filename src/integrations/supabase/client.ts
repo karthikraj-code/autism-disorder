@@ -12,12 +12,26 @@ const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiO
 // Helper function to determine if we're in a browser environment
 const isBrowser = () => typeof window !== 'undefined';
 
+// Helper function to determine current domain for redirects
+const getSiteUrl = () => {
+  if (!isBrowser()) return '';
+  
+  // Check if we're on Netlify production domain
+  if (window.location.hostname === 'autism-disorder-spectrum.netlify.app') {
+    return 'https://autism-disorder-spectrum.netlify.app';
+  }
+  
+  // Fallback to current origin (for localhost or other domains)
+  return window.location.origin;
+};
+
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
     storage: isBrowser() ? localStorage : undefined,
     persistSession: true,
     autoRefreshToken: true,
-    detectSessionInUrl: true
+    detectSessionInUrl: true,
+    flowType: 'pkce'
   }
 });
 

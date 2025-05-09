@@ -91,6 +91,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       cleanupAuthState();
       // Then sign out
       await supabase.auth.signOut({ scope: 'global' });
+      
+      // Clear any stored data
+      localStorage.clear();
+      sessionStorage.clear();
+      
       // Force page reload for a clean state
       window.location.href = '/auth';
     } catch (error) {
