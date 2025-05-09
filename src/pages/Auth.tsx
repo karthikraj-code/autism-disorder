@@ -37,47 +37,45 @@ const Auth = () => {
   };
 
   useEffect(() => {
-    // Check URL for auth response 
-    const checkUrlForSession = async () => {
-      // This handles OAuth redirect and hash fragment responses
-      const hasAuthParams = window.location.hash && 
-                          (window.location.hash.includes('access_token') || 
-                           window.location.hash.includes('error'));
-      
-      if (hasAuthParams) {
+    const checkAuth = async () => {
+      try {
+        // This handles OAuth redirect and hash fragment responses
         const { data, error } = await supabase.auth.getSession();
+        
         if (error) {
           console.error('Error recovering session:', error.message);
           toast.error('Authentication error: ' + error.message);
         } else if (data.session) {
-          // Successfully logged in after OAuth redirect
+          // Successfully logged in
           setUser(data.session.user);
-          toast.success('Successfully logged in!');
-          navigate(from, { replace: true });
+          
+          // Force complete page reload to ensure clean state
+          setTimeout(() => {
+            window.location.href = '/';
+          }, 300);
         }
+      } catch (err) {
+        console.error("Auth check error:", err);
       }
     };
     
-    checkUrlForSession();
+    checkAuth();
 
     const { data: authListener } = supabase.auth.onAuthStateChange(
       (event, session) => {
         console.log('Auth state changed:', event);
         if (session?.user) {
           setUser(session.user);
-          navigate(from, { replace: true });
+          
+          // Force complete page reload to ensure clean state
+          setTimeout(() => {
+            window.location.href = '/';
+          }, 300);
         } else {
           setUser(null);
         }
       }
     );
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        setUser(session.user);
-        navigate(from, { replace: true });
-      }
-    });
 
     return () => {
       authListener.subscription.unsubscribe();
@@ -183,11 +181,11 @@ const Auth = () => {
     if (error) {
       setError(error.message);
       toast.error(error.message);
+      setLoading(false);
     } else {
       toast.success("Sign in successful!");
-      navigate(from, { replace: true });
+      // The onAuthStateChange will handle the redirect
     }
-    setLoading(false);
   };
 
   const handleGoogleSignIn = async () => {
