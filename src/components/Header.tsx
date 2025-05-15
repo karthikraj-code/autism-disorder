@@ -16,7 +16,6 @@ const Header = () => {
               <li><Link to="/stories" className="hover:text-indigo-200 transition-colors">Real Stories</Link></li>
               <li><Link to="/resources" className="hover:text-indigo-200 transition-colors">Support & Resources</Link></li>
               <li><Link to="/activities" className="hover:text-indigo-200 transition-colors">Activities & Tools</Link></li>
-              <li><Link to="/prediction" className="hover:text-indigo-200 transition-colors">Screening Tool</Link></li>
               <li><Link to="/contact" className="hover:text-indigo-200 transition-colors">Contact Us</Link></li>
             </ul>
           </nav>
