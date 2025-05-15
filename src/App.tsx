@@ -17,6 +17,7 @@ import Activities from "./pages/Activities";
 import Contact from "./pages/Contact";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
+import Prediction from "./pages/Prediction";
 
 const queryClient = new QueryClient();
 
@@ -73,6 +74,11 @@ const App = () => (
                 <Route path="/contact" element={
                   <ProtectedRoute>
                     <Contact />
+                  </ProtectedRoute>
+                } />
+                <Route path="/prediction" element={
+                  <ProtectedRoute>
+                    <Prediction />
                   </ProtectedRoute>
                 } />
                 
